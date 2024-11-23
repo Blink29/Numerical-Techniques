@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+from mpl_toolkits.mplot3d import Axes3D
 
 # Parameters
 gamma = 0.001  # Diffusion coefficient
@@ -120,4 +121,70 @@ plt.title(f"Solution Comparison at Final Time (t={T}s)")
 plt.legend()
 plt.grid()
 plt.savefig("solution_comparison_final_time.png")
+plt.show()
+
+# --------------------------
+# 3D Plot of FTCS (Explicit) Solution
+# --------------------------
+fig_3d_ftcs = plt.figure(figsize=(12, 8))
+ax_3d_ftcs = fig_3d_ftcs.add_subplot(111, projection='3d')
+
+# Create a meshgrid for time and space
+X, T_grid = np.meshgrid(x, t)
+
+# Plot the FTCS surface
+ax_3d_ftcs.plot_surface(X, T_grid, U_ftcs, color='b', alpha=0.7)
+
+# Labels and title
+ax_3d_ftcs.set_xlabel("Space (x)")
+ax_3d_ftcs.set_ylabel("Time (t)")
+ax_3d_ftcs.set_zlabel("u(x, t)")
+ax_3d_ftcs.set_title("FTCS (Explicit) Solution Over Time and Space")
+
+# Save the FTCS 3D plot as an image
+fig_3d_ftcs.savefig("ftcs_3d_solution.png", dpi=300)
+
+# Show the FTCS 3D plot
+plt.show()
+
+# --------------------------
+# 3D Plot of Implicit Solution
+# --------------------------
+fig_3d_implicit = plt.figure(figsize=(12, 8))
+ax_3d_implicit = fig_3d_implicit.add_subplot(111, projection='3d')
+
+# Plot the Implicit surface
+ax_3d_implicit.plot_surface(X, T_grid, U_implicit, color='r', alpha=0.7)
+
+# Labels and title
+ax_3d_implicit.set_xlabel("Space (x)")
+ax_3d_implicit.set_ylabel("Time (t)")
+ax_3d_implicit.set_zlabel("u(x, t)")
+ax_3d_implicit.set_title("Implicit Method Solution Over Time and Space")
+
+# Save the Implicit 3D plot as an image
+fig_3d_implicit.savefig("implicit_3d_solution.png", dpi=300)
+
+# Show the Implicit 3D plot
+plt.show()
+
+# --------------------------
+# 3D Plot of Analytical Solution
+# --------------------------
+fig_3d_analytical = plt.figure(figsize=(12, 8))
+ax_3d_analytical = fig_3d_analytical.add_subplot(111, projection='3d')
+
+# Plot the Analytical solution surface
+ax_3d_analytical.plot_surface(X, T_grid, U_analytical, color='g', alpha=0.7)
+
+# Labels and title
+ax_3d_analytical.set_xlabel("Space (x)")
+ax_3d_analytical.set_ylabel("Time (t)")
+ax_3d_analytical.set_zlabel("u(x, t)")
+ax_3d_analytical.set_title("Analytical Solution Over Time and Space")
+
+# Save the Analytical 3D plot as an image
+fig_3d_analytical.savefig("analytical_3d_solution.png", dpi=300)
+
+# Show the Analytical 3D plot
 plt.show()
