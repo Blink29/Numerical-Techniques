@@ -16,12 +16,12 @@ r = gamma * dt / dx**2
 x = np.linspace(0, L, N_x + 1)
 t = np.linspace(0, T, N_t + 1)
 
-# Initial condition
-u_initial = np.sin(np.pi * x)
+# Initial condition: u(x, 0) = sin(2*pi*x)
+u_initial = np.sin(2 * np.pi * x)
 
 # Analytical solution function
 def analytical_solution(x, t):
-    return np.sin(np.pi * x) * np.exp(-np.pi**2 * gamma * t)
+    return np.sin(2 * np.pi * x) * np.exp(-4 * np.pi**2 * gamma * t)
 
 # --------------------------
 # Forward Time Central Space (FTCS - Explicit)
