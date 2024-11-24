@@ -22,7 +22,7 @@ u_initial = np.sin(2 * np.pi * x)
 
 # Analytical solution function
 def analytical_solution(x, t):
-    return np.sin(2 * np.pi * x) * np.exp(-4 * np.pi**2 * gamma * t)
+    return np.sin(2 * np.pi * x) * np.exp(3 * -np.pi**2 * gamma * t)
 
 # --------------------------
 # Forward Time Central Space (FTCS - Explicit)
