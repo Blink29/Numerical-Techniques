@@ -89,28 +89,15 @@ class CubicSplineInterpolator:
         avg_error = np.mean(error)
         print(f"Average error in slope: {avg_error:.6f}")
 
-# Example usage
 if __name__ == "__main__":
-    # Define a sample function
     def f(x):
        return np.sin(x/4) + np.cos(x/4)
 
-    # Create an instance of the class with the function and number of points
     num_points = 1000
     spline_interp = CubicSplineInterpolator(f, num_points)
 
-    # Generate random points
     spline_interp.generate_points()
-
-    # Compute the cubic spline
     spline_interp.compute_cubic_spline()
-
-    # Plot the original function and the cubic spline interpolation
     spline_interp.plot()
-
-    # Generate random points to evaluate the error
     random_points = np.random.uniform(0, 1000, 1000)
-    # random_points = np.random(0, 1000)
-    
-    # Plot the error between the original function's slope and cubic spline's slope
     spline_interp.plot_error(random_points)
