@@ -93,7 +93,7 @@ class CubicSplineInterpolator:
 if __name__ == "__main__":
     # Define a sample function
     def f(x):
-       return np.sin(x/100) + np.cos(x/100)
+       return np.sin(x/4) + np.cos(x/4)
 
     # Create an instance of the class with the function and number of points
     num_points = 1000

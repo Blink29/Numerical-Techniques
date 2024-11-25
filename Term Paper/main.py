@@ -2,70 +2,125 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Input data
-U = 1  # Velocity amplitude [cm/s]
-T = 500  # Oscillation period [s]
-T1 = 1000  # Second oscillation period [s]
-v = 0.01  # Kinematic viscosity [cm^2/s]
-v1 = 0.1  # Second kinematic viscosity [cm^2/s]
-Dt = 1  # Time step [s]
-Dz = 1  # Vertical step [cm]
-nm = 19  # Number of vertical discretization layers
-im = nm + 1  # Number of grid points
+U = 1 # Velocity amplitude [cm/s]
+T = 500 # Oscillation period [s]
+T1 = 1000 # Second oscillation period [s]
+v = 0.01 # Kinematic viscosity [cm^2/s]
+v1 = 0.1 # Second kinematic viscosity [cm^2/s]
+epsilon = 0.1 # Non-Newtonian fluid constant
+Dz = 2 # Vertical step [cm]
+Dt = 0.5 # Time step [s]
+nm = 19 # Number of vertical discretization layers
+im = nm + 1 # Number of grid points
+tm = 5000 # Number of time steps
 
-tm = 5000  # Number of time steps
-
-# Initialization of the velocity fields
+# Initialization
 u1 = np.zeros(im)
 u2 = np.zeros(im)
 u3 = np.zeros(im)
-un1 = np.zeros(im)
-un2 = np.zeros(im)
-un3 = np.zeros(im)
+tau1 = []
+tau2 = []
+tau3 = []
+half_shear = []
+velocity_distributions = []
 
-# Boundary condition at the fixed plate
-u1[-1] = 0
-u2[-1] = 0
-u3[-1] = 0
-
-# Arrays to store shear stress
-tau1 = np.zeros(tm)
-tau2 = np.zeros(tm)
-tau3 = np.zeros(tm)
-
-# Main program
+# Main simulation
 for k in range(1, tm + 1):
     Dtt = Dt * k
-
-    # Boundary condition at the oscillating plate
+    
+    # Boundary conditions
     u1[0] = U * np.sin(2 * np.pi * Dtt / T)
     u2[0] = U * np.sin(2 * np.pi * Dtt / T1)
     u3[0] = U * np.sin(2 * np.pi * Dtt / T)
-
-    # Calculation of the horizontal velocities between the two plates
+    u3[im-1] = 0  # Upper plate stationary for u3
+    
+    # Velocity calculation
     for k1 in range(1, nm):
-        un1[k1] = u1[k1] + (v * Dt / (Dz**2)) * (u1[k1 + 1] - 2 * u1[k1] + u1[k1 - 1])
-        un2[k1] = u2[k1] + (v * Dt / (Dz**2)) * (u2[k1 + 1] - 2 * u2[k1] + u2[k1 - 1])
-        un3[k1] = u3[k1] + (v1 * Dt / (Dz**2)) * (u3[k1 + 1] - 2 * u3[k1] + u3[k1 - 1])
+        u1[k1] = u1[k1] + (v * Dt / Dz**2) * (u1[k1 + 1] - 2 * u1[k1] + u1[k1 - 1])
+        u2[k1] = u2[k1] + (v * Dt / Dz**2) * (u2[k1 + 1] - 2 * u2[k1] + u2[k1 - 1])
+        u3[k1] = u3[k1] + (v1 * Dt / Dz**2) * (u3[k1 + 1] - 2 * u3[k1] + u3[k1 - 1])
+    
+    # Shear stress calculations
+    tau1.append((v * (u1[0] - u1[1]) / Dz))
+    tau2.append((v * (u2[0] - u2[1]) / Dz))
+    tau3.append((v1 * (u3[0] - u3[1]) / Dz))
+    
+    # Halfway shear stress calculation
+    half_shear.append((v1 * (u3[nm // 2] - u3[nm // 2 + 1]) / Dz))
+    
+    # Store velocity profiles for every 100 time steps between 3000 and 4000
+    if 3000 <= k <= 4000 and k % 100 == 0:
+        velocity_distributions.append(u3.copy())
 
-    # Update velocity values
-    u1[1:nm] = un1[1:nm]
-    u2[1:nm] = un2[1:nm]
-    u3[1:nm] = un3[1:nm]
+# Non-Newtonian fluid shear stress
+non_newtonian_tau = []
+t = np.linspace(0, T, tm)
 
-    # Calculate shear stresses
-    tau1[k - 1] = ((u1[0] - u1[1]) / Dz) * v
-    tau2[k - 1] = ((u2[0] - u2[1]) / Dz) * v
-    tau3[k - 1] = ((u3[0] - u3[1]) / Dz) * v1
+for k in range(tm):
+    # Plate velocity at time t
+    plate_velocity = U * np.sin(2 * np.pi * t[k] / T)
+    
+    # Velocity gradient near the wall (difference between plate and adjacent fluid)
+    velocity_gradient = (plate_velocity - 0) / Dz  # Assuming fluid at rest initially
+    
+    # Non-Newtonian shear stress
+    tau = epsilon * (velocity_gradient)**2
+    non_newtonian_tau.append(tau)
 
-# Plotting the results
-plt.plot(range(1, tm + 1), tau1, 'r', linewidth=1.5, label='tau1: T=500s, v=0.01cm^2/s')
-plt.plot(range(1, tm + 1), tau2, 'g', linewidth=1.5, label='tau2: T=1000s, v=0.01cm^2/s')
-plt.plot(range(1, tm + 1), tau3, 'b', linewidth=1.5, label='tau3: T=500s, v=0.1cm^2/s')
+# Upper Plate Scenarios:
+# (a) Half the velocity, in phase
+upper_u_in_phase = [0.5 * U * np.sin(2 * np.pi * Dt * k / T) for k in range(1, tm + 1)]
+# (b) Half the velocity, out of phase (180-degree phase shift)
+upper_u_out_phase = [-0.5 * U * np.sin(2 * np.pi * Dt * k / T) for k in range(1, tm + 1)]
 
+lower_plate_tau_in_phase = [(0.05 * (U * np.sin(2 * np.pi * Dt * k / T) - upper_u_in_phase[k - 1]) / Dz) for k in range(1, tm + 1)]
+lower_plate_tau_out_phase = [(0.05 * (U * np.sin(2 * np.pi * Dt * k / T) - upper_u_out_phase[k - 1]) / Dz) for k in range(1, tm + 1)]
+
+# Plotting results
+plt.figure(figsize=(12, 8))
+
+# Shear stress adjacent to the oscillating plate
+plt.subplot(3, 1, 1)
+plt.plot(range(tm), tau1, 'r', label='tau1: T=500s, v=0.01 cm²/s')
+plt.plot(range(tm), tau2, 'g', label='tau2: T=1000s, v=0.01 cm²/s')
+plt.plot(range(tm), tau3, 'b', label='tau3: T=500s, v=0.1 cm²/s')
 plt.xlabel('Time steps')
-plt.ylabel('Shear stress along the oscillating plate [(cm/s)^2]')
-plt.axis([0, 5000, -0.049, 0.035])
-plt.legend(loc='best')
-plt.grid(True)
-plt.title('Shear Stress for Oscillating Couette Flow')
+plt.ylabel('Shear stress [(cm/s)^2]')
+plt.legend()
+
+# Halfway shear stress
+plt.subplot(3, 1, 2)
+plt.plot(range(tm), half_shear, 'c', label='Halfway shear stress: T=500s, v=0.1 cm²/s')
+plt.xlabel('Time steps')
+plt.ylabel('Shear stress [(cm/s)^2]')
+plt.legend()
+
+# Non-Newtonian fluid shear stress
+plt.subplot(3, 1, 3)
+plt.plot(range(tm), non_newtonian_tau, 'm', label='Non-Newtonian tau: T=500s, v=0.1 cm²/s')
+plt.xlabel('Time steps')
+plt.ylabel('Shear stress [(cm/s)^2]')
+plt.legend()
+
+plt.tight_layout()
 plt.show()
+
+# Plot velocity profiles
+for i, profile in enumerate(velocity_distributions, start=1):
+    plt.plot(profile, label=f'Time step: {3000 + i * 100}')
+plt.xlabel('Vertical layers')
+plt.ylabel('Velocity [cm/s]')
+plt.title('Velocity Profiles')
+plt.legend()
+plt.show()
+
+# Lower plate stresses
+plt.plot(range(tm), lower_plate_tau_in_phase, 'y', label='In-phase')
+plt.plot(range(tm), lower_plate_tau_out_phase, 'k', label='Out-of-phase')
+plt.xlabel('Time steps')
+plt.ylabel('Shear stress [(cm/s)^2]')
+plt.legend()
+plt.title('Shear stress on lower plate')
+plt.show()
+
+

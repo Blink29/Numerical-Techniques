@@ -17,16 +17,15 @@ r = gamma * dt / dx**2
 x = np.linspace(0, L, N_x + 1)
 t = np.linspace(0, T, N_t + 1)
 
-# Initial condition: u(x, 0) = sin(2*pi*x)
+# Initial condition: u(x, 0)
 u_initial = np.sin(2 * np.pi * x)
 
-# Analytical solution function
+# Analytical function
 def analytical_solution(x, t):
     return np.sin(2 * np.pi * x) * np.exp(3 * -np.pi**2 * gamma * t)
 
-# --------------------------
+
 # Forward Time Central Space (FTCS - Explicit)
-# --------------------------
 U_ftcs = [u_initial.copy()]
 u_ftcs = u_initial.copy()
 
@@ -39,9 +38,7 @@ for n in range(N_t):
 
 U_ftcs = np.array(U_ftcs)
 
-# --------------------------
 # Implicit Method
-# --------------------------
 A = np.zeros((N_x-1, N_x-1))
 np.fill_diagonal(A, 1 + 2*r)
 np.fill_diagonal(A[:-1, 1:], -r)
@@ -57,20 +54,15 @@ for n in range(N_t):
 
 U_implicit = np.array(U_implicit)
 
-# --------------------------
 # Analytical Solution
-# --------------------------
 U_analytical = np.array([[analytical_solution(xi, tn) for xi in x] for tn in t])
 
-# --------------------------
 # Calculate Errors
-# --------------------------
 error_ftcs = np.abs(U_ftcs - U_analytical)
 error_implicit = np.abs(U_implicit - U_analytical)
 
-# --------------------------
-# Plot and Animate
-# --------------------------
+
+# Plot 
 fig, ax = plt.subplots(figsize=(10, 6))
 line_analytical, = ax.plot(x, U_analytical[0], 'g-', linewidth=2.5, label="Analytical Solution")
 line_ftcs, = ax.plot(x, U_ftcs[0], 'b--', label="FTCS (Explicit)")
@@ -91,12 +83,9 @@ def update(frame):
 
 ani = FuncAnimation(fig, update, frames=range(0, N_t, N_t // 100), interval=50, blit=True)
 
-# Save the animation as a gif
 ani.save("diffusion_methods_comparison.gif", writer="pillow")
 
-# --------------------------
 # Error Plot at Final Time
-# --------------------------
 plt.figure(figsize=(8, 5))
 plt.plot(x, error_ftcs[-1], label="FTCS Error", linestyle='--', color='blue')
 plt.plot(x, error_implicit[-1], label="Implicit Error", linestyle='-.', color='red')
@@ -108,9 +97,8 @@ plt.grid()
 plt.savefig("error_comparison_final_time.png")
 plt.show()
 
-# --------------------------
+
 # Static Plot of Results at Final Time
-# --------------------------
 plt.figure(figsize=(8, 5))
 plt.plot(x, U_analytical[-1], 'g-', linewidth=2.5, label="Analytical Solution")
 plt.plot(x, U_ftcs[-1], 'b--', label="FTCS (Explicit)")
@@ -123,68 +111,50 @@ plt.grid()
 plt.savefig("solution_comparison_final_time.png")
 plt.show()
 
-# --------------------------
-# 3D Plot of FTCS (Explicit) Solution
-# --------------------------
+
+# 3D Plot of FTCS Solution
 fig_3d_ftcs = plt.figure(figsize=(12, 8))
 ax_3d_ftcs = fig_3d_ftcs.add_subplot(111, projection='3d')
 
-# Create a meshgrid for time and space
 X, T_grid = np.meshgrid(x, t)
 
-# Plot the FTCS surface
 ax_3d_ftcs.plot_surface(X, T_grid, U_ftcs, color='b', alpha=0.7)
 
-# Labels and title
 ax_3d_ftcs.set_xlabel("Space (x)")
 ax_3d_ftcs.set_ylabel("Time (t)")
 ax_3d_ftcs.set_zlabel("u(x, t)")
 ax_3d_ftcs.set_title("FTCS (Explicit) Solution Over Time and Space")
 
-# Save the FTCS 3D plot as an image
 fig_3d_ftcs.savefig("ftcs_3d_solution.png", dpi=300)
 
-# Show the FTCS 3D plot
 plt.show()
 
-# --------------------------
 # 3D Plot of Implicit Solution
-# --------------------------
 fig_3d_implicit = plt.figure(figsize=(12, 8))
 ax_3d_implicit = fig_3d_implicit.add_subplot(111, projection='3d')
 
-# Plot the Implicit surface
 ax_3d_implicit.plot_surface(X, T_grid, U_implicit, color='r', alpha=0.7)
 
-# Labels and title
 ax_3d_implicit.set_xlabel("Space (x)")
 ax_3d_implicit.set_ylabel("Time (t)")
 ax_3d_implicit.set_zlabel("u(x, t)")
 ax_3d_implicit.set_title("Implicit Method Solution Over Time and Space")
 
-# Save the Implicit 3D plot as an image
 fig_3d_implicit.savefig("implicit_3d_solution.png", dpi=300)
 
-# Show the Implicit 3D plot
 plt.show()
 
-# --------------------------
 # 3D Plot of Analytical Solution
-# --------------------------
 fig_3d_analytical = plt.figure(figsize=(12, 8))
 ax_3d_analytical = fig_3d_analytical.add_subplot(111, projection='3d')
 
-# Plot the Analytical solution surface
 ax_3d_analytical.plot_surface(X, T_grid, U_analytical, color='g', alpha=0.7)
 
-# Labels and title
 ax_3d_analytical.set_xlabel("Space (x)")
 ax_3d_analytical.set_ylabel("Time (t)")
 ax_3d_analytical.set_zlabel("u(x, t)")
 ax_3d_analytical.set_title("Analytical Solution Over Time and Space")
 
-# Save the Analytical 3D plot as an image
 fig_3d_analytical.savefig("analytical_3d_solution.png", dpi=300)
 
-# Show the Analytical 3D plot
 plt.show()

@@ -1,0 +1,1 @@
+Average error in slope: 0.000547 for spline

@@ -3,36 +3,36 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
 # Parameters
-Nx = 32
-L = 1
-Wall_Velocity = 1
-rho = 1
-mu = 0.01
-dt = 0.001
-maxIt = 50000
-maxe = 1e-7
-Re = rho * Wall_Velocity * L / mu
+Nx = 32 # Number of grid points in x-direction
+L = 1 # Length of the domain
+Wall_Velocity = 1 # Velocity of the moving wall
+rho = 1 # Density
+mu = 0.01 # Viscosity
+dt = 0.001 # Time step
+maxIt = 50000 # Maximum number of iterations
+maxe = 1e-7 # Maximum error for convergence
+Re = rho * Wall_Velocity * L / mu # Reynolds number
 
 # Grid setup
-Ny = Nx
-h = L/(Nx-1)
+Ny = Nx 
+h = L/(Nx-1) 
 x = np.linspace(0, L, Nx)
 y = np.linspace(0, L, Ny)
 X, Y = np.meshgrid(x, y)
 
 # Initialize arrays
-Vo = np.zeros((Nx, Ny))  # Vorticity
-St = np.zeros((Nx, Ny))  # Stream function
-u = np.zeros((Nx, Ny))   # x-velocity
-v = np.zeros((Nx, Ny))   # y-velocity
+Vo = np.zeros((Nx, Ny)) # Vorticity
+St = np.zeros((Nx, Ny)) # Stream function
+u = np.zeros((Nx, Ny)) # x-velocity
+v = np.zeros((Nx, Ny)) # y-velocity
 
 # Main solver loop
 for iter in range(maxIt):
     # Boundary conditions
-    Vo[0:Nx, Ny-1] = -2*St[0:Nx, Ny-2]/(h**2) - Wall_Velocity*2/h  # Top
-    Vo[0:Nx, 0] = -2*St[0:Nx, 1]/(h**2)                            # Bottom
-    Vo[0, 0:Ny] = -2*St[1, 0:Ny]/(h**2)                           # Left
-    Vo[Nx-1, 0:Ny] = -2*St[Nx-2, 0:Ny]/(h**2)                     # Right
+    Vo[0:Nx, Ny-1] = -2*St[0:Nx, Ny-2]/(h**2) - Wall_Velocity*2/h # Top
+    Vo[0:Nx, 0] = -2*St[0:Nx, 1]/(h**2) # Bottom
+    Vo[0, 0:Ny] = -2*St[1, 0:Ny]/(h**2) # Left
+    Vo[Nx-1, 0:Ny] = -2*St[Nx-2, 0:Ny]/(h**2) # Right
     
     # Store old vorticity
     Vop = Vo.copy()
@@ -66,10 +66,10 @@ u[1:Nx-1, Ny-1] = Wall_Velocity
 u[i,j] = (St[i,jp]-St[i,jm])/(2*h)
 v[i,j] = (-St[ip,j]+St[im,j])/(2*h)
 
-# Plotting
+
 plt.figure(figsize=(15, 5))
 
-# U-velocity contour
+# U-velocity Plot
 plt.subplot(131)
 plt.contourf(X, Y, u.T, levels=23, cmap='hsv')
 plt.colorbar(location='left')
@@ -78,7 +78,7 @@ plt.xlabel('x-location')
 plt.ylabel('y-location')
 plt.axis('equal')
 
-# Centerline velocity
+# Centerline velocity Plot
 plt.subplot(132)
 plt.plot(y, u[Nx//2,:])
 plt.title('Centerline x-direction velocity')
@@ -87,7 +87,7 @@ plt.ylabel('u/U')
 plt.grid(True)
 plt.axis('square')
 
-# Streamlines
+# Streamlines Plot
 plt.subplot(133)
 N = 1000
 xstart = L * np.random.rand(N)
@@ -100,6 +100,6 @@ plt.ylabel('y-location')
 plt.axis('equal')
 
 plt.tight_layout()
-# Save the figure with high resolution
+
 plt.savefig('streamlines_plot.png', dpi=300, bbox_inches='tight')
 plt.show()

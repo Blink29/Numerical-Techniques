@@ -59,12 +59,9 @@ plt.title("Temperature Distribution")
 plt.legend()
 plt.grid(True)
 
-# Save the plot as an image
 plt.savefig("temperature_distribution.png")
 
-# Show the plot
 plt.show()
 
-# Print the results for verification
 print("Direct Method Solution:", T_direct)
 print("Gauss-Seidel Method Solution:", T_gs)

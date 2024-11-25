@@ -8,7 +8,7 @@ L = 1.0
 N = 120  
 dx = L / N
 
-# Create finer grid
+# Grid
 x = np.linspace(0, L, N+1)
 
 # Initialize arrays with new size
@@ -33,7 +33,7 @@ A[N, N] = 1
 b[0] = 0
 b[N] = 0
 
-# Direct method using numpy's linear solver
+# Direct method 
 def gaussian_elimination(A, b):
     n = len(A)
     # Make copies to avoid modifying original arrays
@@ -63,7 +63,6 @@ def gaussian_elimination(A, b):
     
     return x
 
-# Use the function with your existing A and b
 T_gauss_direct = gaussian_elimination(A, b)
 
 # Gauss-Seidel method
@@ -83,10 +82,8 @@ def gauss_seidel(A, b, tol=1e-10, max_iter=1000):
 
 T_gauss_seidal = gauss_seidel(A, b)
 
-# Calculate error
 error = np.abs(T_gauss_direct - T_gauss_seidal)
 
-# Create finer x points for smooth plotting
 x_fine = np.linspace(0, L, 1000)
 
 # Create interpolation functions
@@ -94,18 +91,6 @@ T_direct_interp = interp1d(x, T_gauss_direct, kind='cubic')
 T_gs_interp = interp1d(x, T_gauss_seidal, kind='cubic')
 error_interp = interp1d(x, error, kind='cubic')
 
-# First Figure - Temperature Distribution
-plt.figure(1, figsize=(10, 6))
-plt.plot(x_fine, T_direct_interp(x_fine), label="Direct Method")
-plt.plot(x_fine, T_gs_interp(x_fine), label="Gauss-Seidel", linestyle='--')
-plt.xlabel("x")
-plt.ylabel("Temperature (T)")
-plt.title("Temperature Distribution")
-plt.legend()
-plt.grid(True)
-plt.savefig("temperature_distribution.png")
-
-# Create subplots
 fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 10))
 
 # Plot temperature distribution
@@ -129,7 +114,6 @@ plt.tight_layout()
 plt.savefig("temperature_and_error.png")
 plt.show()
 
-# Print the results for verification
 print("Gaussian Direct Solution:", T_gauss_direct)
 print("Gauss-Seidel Method Solution:", T_gauss_seidal)
 print("Maximum Error:", np.max(error))
